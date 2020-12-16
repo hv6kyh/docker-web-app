@@ -6,23 +6,6 @@ const app = express();
 
 app.use(bodyParser.json());
 
-db.pool.query(
-  `
-    CREATE TABLE tbl_posts (
-      id INTEGER AUTO_INCREMENT,
-      content TEXT,
-      PRIMARY KEY (id)
-    )
-`,
-  (err, result) => {
-    if (err) {
-      console.log("테이블 만들기 에러 ", err);
-    } else {
-      console.log("테이블 만들기 성공 ", result);
-    }
-  }
-);
-
 app.get("/api/posts", (req, res) => {
   console.log("get 요청 왔음");
   db.pool.query(
