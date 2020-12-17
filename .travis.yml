@@ -21,3 +21,15 @@ after_success:
   - docker push hv6kyh/docker-frontend
   - docker push hv6kyh/docker-backend
   - docker push hv6kyh/docker-nginx
+
+deploy:
+  provider: elasticbeanstalk
+  region: "ap-northeast-2"
+  app: "docker-web-app"
+  env: "DockerWebApp-env"
+  bucket_name: "elasticbeanstalk-ap-northeast-2-979312597187"
+  bucket_path: "docker-web-app"
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
