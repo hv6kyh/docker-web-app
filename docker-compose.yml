@@ -27,10 +27,10 @@ services:
       - /usr/src/app/node_modules
       - ./backend:/usr/src/app
     environment:
-      MYSQL_HOST: mysql
+      MYSQL_HOST: docker-web-mysql.c4mpfz5i5x0g.ap-northeast-2.rds.amazonaws.com
       MYSQL_USER: root
       MYSQL_ROOT_PASSWORD: 1q2w3e4r
-      MYSQL_DATABASE: mydb
+      MYSQL_DATABASE: devdb
       MYSQL_PORT: 3306
 
   # mysql:
