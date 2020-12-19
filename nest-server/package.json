@@ -18,7 +18,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "generate:db": "rm -rf entities & npx typeorm-model-generator -h docker-web-mysql.c4mpfz5i5x0g.ap-northeast-2.rds.amazonaws.com -d devdb -p 3306 -u root -x 1q2w3e4r -e mysql -o entities --noConfig true --ce pascal --cp none"
   },
   "dependencies": {
     "@nestjs/common": "^7.0.0",
