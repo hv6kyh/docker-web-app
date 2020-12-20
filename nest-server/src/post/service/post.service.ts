@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Post } from 'entities';
-import { PostRepository } from 'repositories';
+import { Post } from '../../entities';
+import { PostRepository } from '../../repositories';
 import { PostCreate } from '../dto';
 
 @Injectable()
