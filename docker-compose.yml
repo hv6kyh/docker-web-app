@@ -18,14 +18,27 @@ services:
     ports:
       - "3000:80"
 
+  # backend:
+  #   build:
+  #     dockerfile: Dockerfile.dev
+  #     context: ./backend
+  #   container_name: app_backend
+  #   volumes:
+  #     - /usr/src/app/node_modules
+  #     - ./backend:/usr/src/app
+  #   environment:
+  #     MYSQL_HOST: docker-web-mysql.c4mpfz5i5x0g.ap-northeast-2.rds.amazonaws.com
+  #     MYSQL_USER: root
+  #     MYSQL_ROOT_PASSWORD: 1q2w3e4r
+  #     MYSQL_DATABASE: devdb
+  #     MYSQL_PORT: 3306
+
   backend:
-    build:
-      dockerfile: Dockerfile.dev
-      context: ./backend
+    build: ./nest-server
     container_name: app_backend
     volumes:
       - /usr/src/app/node_modules
-      - ./backend:/usr/src/app
+      - ./nest-server:/usr/src/app
     environment:
       MYSQL_HOST: docker-web-mysql.c4mpfz5i5x0g.ap-northeast-2.rds.amazonaws.com
       MYSQL_USER: root
