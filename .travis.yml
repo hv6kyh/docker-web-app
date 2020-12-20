@@ -7,13 +7,15 @@ services:
 
 before_install:
   - docker build -t hv6kyh/react-test-app -f ./frontend/Dockerfile.dev ./frontend
+  - docker build -t hv6kyh/nest-test-app -f ./nest-server
 
 script:
   - docker run -e CI=true hv6kyh/react-test-app npm run test -- --coverage
+  - docker run -e CI=true hv6kyh/nest-test-app npm run test:cov
 
 after_success:
   - docker build -t hv6kyh/docker-frontend ./frontend
-  - docker build -t hv6kyh/docker-backend ./backend
+  - docker build -t hv6kyh/docker-backend ./nest-server
   - docker build -t hv6kyh/docker-nginx ./nginx
 
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
@@ -33,13 +35,13 @@ deploy:
       branch: master
     access_key_id: $AWS_ACCESS_KEY
     secret_access_key: $AWS_SECRET_ACCESS_KEY
-  - provider: elasticbeanstalk
-    region: "ap-northeast-2"
-    app: "docker-web-app"
-    env: "DevDockerWebApp-env"
-    bucket_name: "elasticbeanstalk-ap-northeast-2-979312597187"
-    bucket_path: "docker-web-app-dev"
-    on:
-      branch: develop
-    access_key_id: $AWS_ACCESS_KEY
-    secret_access_key: $AWS_SECRET_ACCESS_KEY
+  # - provider: elasticbeanstalk
+  #   region: "ap-northeast-2"
+  #   app: "docker-web-app"
+  #   env: "DevDockerWebApp-env"
+  #   bucket_name: "elasticbeanstalk-ap-northeast-2-979312597187"
+  #   bucket_path: "docker-web-app-dev"
+  #   on:
+  #     branch: develop
+  #   access_key_id: $AWS_ACCESS_KEY
+  #   secret_access_key: $AWS_SECRET_ACCESS_KEY
