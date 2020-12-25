@@ -41,17 +41,21 @@ jobs:
         # Build a docker container and
         # push it to ECR so that it can
         # be deployed to ECS.
-        docker build -t $ECR_REGISTRY/frontend:$IMAGE_TAG ./frontend
-        docker build -t $ECR_REGISTRY/backend:$IMAGE_TAG ./backend
-        docker build -t $ECR_REGISTRY/nginx:$IMAGE_TAG ./nginx
-        
-        docker push $ECR_REGISTRY/frontend:$IMAGE_TAG
-        docker push $ECR_REGISTRY/backend:$IMAGE_TAG
-        docker push $ECR_REGISTRY/nginx:$IMAGE_TAG
+        docker build -t $ECR_REGISTRY/frontend ./frontend
+        docker build -t $ECR_REGISTRY/backend ./backend
+        docker build -t $ECR_REGISTRY/nginx ./nginx
         
         docker push $ECR_REGISTRY/frontend
         docker push $ECR_REGISTRY/backend
         docker push $ECR_REGISTRY/nginx
+        
+        docker tag $ECR_REGISTRY/frontend $ECR_REGISTRY/frontend:$IMAGE_TAG
+        docker tag $ECR_REGISTRY/backend $ECR_REGISTRY/backend:$IMAGE_TAG
+        docker tag $ECR_REGISTRY/nginx $ECR_REGISTRY/nginx:$IMAGE_TAG
+        
+        docker push $ECR_REGISTRY/frontend:$IMAGE_TAG
+        docker push $ECR_REGISTRY/backend:$IMAGE_TAG
+        docker push $ECR_REGISTRY/nginx:$IMAGE_TAG
         
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
         
@@ -66,5 +70,6 @@ jobs:
         application_name: docker-web-app
         environment_name: DockerWebApp-env
         version_label: ${{ github.run_number }}
+        version_description: ${{ github.sha }}
         region: ap-northeast-2
         deployment_package: deploy.zip
