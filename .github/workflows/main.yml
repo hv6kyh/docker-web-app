@@ -35,9 +35,18 @@ jobs:
         # Build a docker container and
         # push it to ECR so that it can
         # be deployed to ECS.
+        docker build -t hv6kyh/react-test-app -f ./frontend/Dockerfile.dev ./frontend
+        
+        docker run -e CI=true hv6kyh/react-test-app npm run test -- --coverage
+        
         docker build -t $ECR_REGISTRY/frontend:$IMAGE_TAG ./frontend
         docker build -t $ECR_REGISTRY/backend:$IMAGE_TAG ./backend
         docker build -t $ECR_REGISTRY/nginx:$IMAGE_TAG ./nginx
+        
+        docker push $ECR_REGISTRY/frontend:$IMAGE_TAG
+        docker push $ECR_REGISTRY/backend:$IMAGE_TAG
+        docker push $ECR_REGISTRY/nginx:$IMAGE_TAG
+        
         docker push $ECR_REGISTRY/frontend:$IMAGE_TAG
         docker push $ECR_REGISTRY/backend:$IMAGE_TAG
         docker push $ECR_REGISTRY/nginx:$IMAGE_TAG
