@@ -13,6 +13,12 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
+      
+    - name: Testing
+      id: npm-test
+      run: |
+        docker build -t hv6kyh/react-test-app -f ./frontend/Dockerfile.dev ./frontend
+        docker run -e CI=true hv6kyh/react-test-app npm run test -- --coverage
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -35,10 +41,6 @@ jobs:
         # Build a docker container and
         # push it to ECR so that it can
         # be deployed to ECS.
-        docker build -t hv6kyh/react-test-app -f ./frontend/Dockerfile.dev ./frontend
-        
-        docker run -e CI=true hv6kyh/react-test-app npm run test -- --coverage
-        
         docker build -t $ECR_REGISTRY/frontend:$IMAGE_TAG ./frontend
         docker build -t $ECR_REGISTRY/backend:$IMAGE_TAG ./backend
         docker build -t $ECR_REGISTRY/nginx:$IMAGE_TAG ./nginx
@@ -47,7 +49,22 @@ jobs:
         docker push $ECR_REGISTRY/backend:$IMAGE_TAG
         docker push $ECR_REGISTRY/nginx:$IMAGE_TAG
         
-        docker push $ECR_REGISTRY/frontend:$IMAGE_TAG
-        docker push $ECR_REGISTRY/backend:$IMAGE_TAG
-        docker push $ECR_REGISTRY/nginx:$IMAGE_TAG
+        docker push $ECR_REGISTRY/frontend:latest
+        docker push $ECR_REGISTRY/backend:latest
+        docker push $ECR_REGISTRY/nginx:latest
+        
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        
+    - name: Generate deployment package
+      run: zip -r deploy.zip .
+      
+    - name: Deploy to EB
+      uses: einaregilsson/beanstalk-deploy@v14
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: docker-web-app
+        environment_name: DockerWebApp-env
+        version_label: ${{ github.run_number }}
+        region: ap-northeast-2
+        deployment_package: deploy.zip
