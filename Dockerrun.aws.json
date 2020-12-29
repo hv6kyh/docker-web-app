@@ -3,21 +3,21 @@
   "containerDefinitions": [
     {
       "name": "frontend",
-      "image": "hv6kyh/docker-frontend",
+      "image": "979312597187.dkr.ecr.ap-northeast-2.amazonaws.com/frontend",
       "hostname": "frontend",
       "essential": false,
       "memory": 128
     },
     {
       "name": "backend",
-      "image": "hv6kyh/docker-backend",
+      "image": "979312597187.dkr.ecr.ap-northeast-2.amazonaws.com/backend",
       "hostname": "backend",
       "essential": false,
       "memory": 128
     },
     {
       "name": "nginx",
-      "image": "hv6kyh/docker-nginx",
+      "image": "979312597187.dkr.ecr.ap-northeast-2.amazonaws.com/nginx",
       "hostname": "nginx",
       "essential": true,
       "portMappings": [
