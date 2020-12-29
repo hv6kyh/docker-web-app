@@ -1,0 +1,75 @@
+on:
+  push:
+    branches:
+      - master
+
+name: Deploy to Amazon Beanstalk
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      
+    - name: Testing
+      id: npm-test
+      run: |
+        docker build -t hv6kyh/react-test-app -f ./frontend/Dockerfile.dev ./frontend
+        docker run -e CI=true hv6kyh/react-test-app npm run test -- --coverage
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: docker-web-app
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Build a docker container and
+        # push it to ECR so that it can
+        # be deployed to ECS.
+        docker build -t $ECR_REGISTRY/frontend ./frontend
+        docker build -t $ECR_REGISTRY/backend ./backend
+        docker build -t $ECR_REGISTRY/nginx ./nginx
+        
+        docker push $ECR_REGISTRY/frontend
+        docker push $ECR_REGISTRY/backend
+        docker push $ECR_REGISTRY/nginx
+        
+        docker tag $ECR_REGISTRY/frontend $ECR_REGISTRY/frontend:$IMAGE_TAG
+        docker tag $ECR_REGISTRY/backend $ECR_REGISTRY/backend:$IMAGE_TAG
+        docker tag $ECR_REGISTRY/nginx $ECR_REGISTRY/nginx:$IMAGE_TAG
+        
+        docker push $ECR_REGISTRY/frontend:$IMAGE_TAG
+        docker push $ECR_REGISTRY/backend:$IMAGE_TAG
+        docker push $ECR_REGISTRY/nginx:$IMAGE_TAG
+        
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        
+    - name: Generate deployment package
+      run: zip -r deploy.zip .
+      
+    - name: Deploy to EB
+      uses: einaregilsson/beanstalk-deploy@v14
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: docker-web-app
+        environment_name: DockerWebApp-env
+        version_label: ${{ github.run_number }}
+        version_description: ${{ github.sha }}
+        region: ap-northeast-2
+        deployment_package: deploy.zip
